@@ -1,26 +1,35 @@
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class TabController : MonoBehaviour
 {
+    [Header("Tabs & Pages")]
+    public Button[] tabButtons;
     public Image[] tabImages;
     public GameObject[] pages;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [Header("Colors")]
+    public Color activeColor = Color.white;
+    public Color inactiveColor = Color.gray;
+
     void Start()
     {
-        ActivateTab(0); 
+        for (int i = 0; i < tabButtons.Length; i++)
+        {
+            int tabIndex = i; // Important to avoid closure issue
+            tabButtons[i].onClick.AddListener(() => ActivateTab(tabIndex));
+        }
+
+        ActivateTab(0); // Initial tab
     }
 
-   public void ActivateTab(int tabNo)
+    public void ActivateTab(int tabIndex)
     {
         for (int i = 0; i < pages.Length; i++)
         {
-            pages[i].SetActive(false);
-            tabImages[i].color = Color.grey;
+            bool isActive = (i == tabIndex);
+            pages[i].SetActive(isActive);
+            tabImages[i].color = isActive ? activeColor : inactiveColor;
         }
-
-        pages[tabNo].SetActive(true);
-        tabImages[tabNo].color = Color.white;
     }
 }
