@@ -12,11 +12,11 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>(); 
+        animator = GetComponent<Animator>();
 
-        if(GameManager.isReturningFromIndoor)
+        if (GameManager.isReturningFromIndoor)
         {
-            transform.position = GameManager.playerPos; 
+            transform.position = GameManager.playerPos;
             GameManager.isReturningFromIndoor = false;
         }
     }
@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
             animator.SetFloat("LastInputY", moveInput.y);
         }
 
-        moveInput = context.ReadValue<Vector2>(); 
+        moveInput = context.ReadValue<Vector2>();
         animator.SetFloat("InputX", moveInput.x);
         animator.SetFloat("InputY", moveInput.y);
     }

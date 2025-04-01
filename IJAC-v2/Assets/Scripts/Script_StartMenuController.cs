@@ -5,16 +5,23 @@ using UnityEngine.SceneManagement;
 
 public class StartMenuController : MonoBehaviour
 {
+    public GameObject settingsMenu;
+    
+    void Start()
+    {
+        settingsMenu.SetActive(false);
+    }
+
     public void PlayGame1()
     {
         Debug.Log("Play 1 button clicked!");
-        // SceneManager.LoadScene("SampleScene"); 
+        SceneManager.LoadScene("MapOutDoor"); 
     }
 
     public void PlayGame2()
     {
         Debug.Log("Play 2 button clicked!");
-        // SceneManager.LoadScene("SampleScene"); 
+        SceneManager.LoadScene("MapOutDoor"); 
     }
 
     public void ChangeAvatar()
@@ -26,12 +33,17 @@ public class StartMenuController : MonoBehaviour
     public void Setting()
     {
         Debug.Log("Setting clicked!");
-        // Implement setting functionality
+        settingsMenu.SetActive(!settingsMenu.activeSelf);
     }
 
     public void QuitGame()
     {
         Debug.Log("Quit button clicked!");
-        Application.Quit();
+        //For testing purposes, check if we are in the Unity Editor or not 
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }
