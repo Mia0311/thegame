@@ -16,8 +16,6 @@ public class PostData
 {
     public string username;
     public string caption;
-    //public Sprite image;
-    //public VideoClip video;
     public string imageName;
     public string videoName;
     public bool isVideo;
@@ -35,93 +33,17 @@ public class FYPManager : MonoBehaviour
 {
     public GameObject postPrefab;
     public Transform contentPanel;
-    //public Sprite[] images;
-    //public VideoClip[] videos;
     public TMP_FontAsset commentFont;
+    public GameObject reportPopUpPrefab;
 
-    private List<PostData> postList = new List<PostData> ();
+    private List<PostData> postList = new List<PostData>();
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public void Start()
+    void Start()
     {
         LoadPosts();
     }
 
-    /*public void LoadPosts()
-    {
-        string[] usernames = { "Alice", "Bob", "Charlie", "David", "Eve" };
-
-        for (int i = 0; i < 10; i++)
-        {
-            bool isVideoPost = Random.value > 0.5f;
-            Debug.Log($"Iteration {i}: Random isVideoPost = {isVideoPost}");
-
-            PostData post = new PostData
-            {
-                username = usernames[Random.Range(0, usernames.Length)],
-                isVideo = isVideoPost,
-                image = isVideoPost ? null : images[Random.Range(0, images.Length)],
-                video = isVideoPost ? videos[Random.Range(0, videos.Length)] : null,
-                likes = Random.Range(0, 1000),
-                comments = new List<string>
-                { "Awesome post!",
-                    "Love this!",
-                    "Amazing content! Keep it up!",
-                    "This is so cool!",
-                    "Great shot!",
-                    "So inspiring!",
-                    "I need this in my life!",
-                    "Incredible! How did you do this?",
-                    "Love the vibes in this one!",
-                    "So creative!",
-                    "You always post the best content!",
-                    "Wow, just wow!",
-                    "This made my day!",
-                    "I can't stop watching this!",
-                    "The quality is next level!",
-                    "You're so talented!",
-                    "This is absolutely stunning!",
-                    "The colors in this are perfect!",
-                    "I showed this to my friends, they loved it too!",
-                    "Epic content!",
-                    "I've watched this 5 times already!",
-                    "This should go viral!",
-                    "I'm obsessed with this!",
-                    "Definitely one of your best posts!",
-                    "So relatable!",
-                    "Love the energy in this!",
-                    "The detail is amazing!",
-                    "You always bring something new!",
-                    "Can't wait for more posts like this!",
-                    "This deserves way more likes!",
-                    "Legendary content!",
-                    "You never miss!",
-                    "This gave me chills!",
-                    "Teach me your ways!",
-                    "You should post more often!",
-                    "The background music is perfect!",
-                    "Literally the best thing I've seen today!",
-                    "This needs to be on my feed every day!",
-                    "So underrated!",
-                    "This is straight-up art!",
-                    "You always make my feed better!",
-                    "I aspire to create like this one day!",
-                    "Such a wholesome post!",
-                    "Your creativity has no limits!",
-                    "I feel so motivated after watching this!",
-                    "You're an inspiration!",
-                    "Can't wait to see what you post next!"
-                }
-            };
-
-            Debug.Log($"Iteration {i}: Created PostData - isVideo = {post.isVideo}, image = {post.image}, video = {post.video}");
-
-            postList.Add(post);
-            CreatePostUI(post);
-        }
-    } */
-
-    public void LoadPosts ()
+    public void LoadPosts()
     {
         TextAsset jsonFile = Resources.Load<TextAsset>("posts");
 
@@ -139,65 +61,84 @@ public class FYPManager : MonoBehaviour
         }
     }
 
-    public void CreatePostUI (PostData post)
+    public void CreatePostUI(PostData post)
     {
         GameObject newPost = Instantiate(postPrefab, contentPanel);
 
-        //Debug.Log($"Creating UI for post - isVideo = {post.isVideo}");
+        // Set up post fields (username, caption, etc.)
+        SetText(newPost, "UsernameBackground/Username", post.username);
+        SetText(newPost, "CaptionBackground/PostCaption", post.caption);
 
-        TextMeshProUGUI usernameText = newPost.transform.Find("UsernameBackground/Username").GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI captionText = newPost.transform.Find("CaptionBackground/PostCaption").GetComponent<TextMeshProUGUI>();
+        // Set image/video
+        SetImageOrVideo(newPost, post);
+
+        // Set like count and voting buttons
+        SetLikeButtonActions(newPost, post);
+
+        // Set up report button
+        SetReportButton(newPost, post);
+
+        // Set up comments section
+        SetUpCommentsSection(newPost, post);
+    }
+
+    private void SetText(GameObject parent, string path, string text)
+    {
+        TextMeshProUGUI textComp = parent.transform.Find(path).GetComponent<TextMeshProUGUI>();
+        textComp.text = text;
+    }
+
+    private void SetImageOrVideo(GameObject newPost, PostData post)
+    {
         Image postImage = newPost.transform.Find("PostImage").GetComponent<Image>();
         RawImage postVideo = newPost.transform.Find("PostVideoRaw").GetComponent<RawImage>();
         VideoPlayer videoPlayer = newPost.transform.Find("PostVideoRaw/PostVideoPlayer").GetComponent<VideoPlayer>();
-        TextMeshProUGUI likeCountText = newPost.transform.Find("LikeCount").GetComponent<TextMeshProUGUI>();
-
-        //Debug.Log($"Setting username: {post.username}");
-
-        usernameText.text = post.username;
-        captionText.text = post.caption;
 
         if (post.isVideo)
         {
-            //Debug.Log("Processing as video post");
             postImage.gameObject.SetActive(false);
             postVideo.gameObject.SetActive(true);
-            /*videoPlayer.clip = post.video;
-            videoPlayer.SetDirectAudioMute(0, true);
-            videoPlayer.Play();*/
-
-            VideoClip video = Resources.Load<VideoClip>(post.videoName);
-            if (video != null)
-            {
-                videoPlayer.clip = video;
-                videoPlayer.SetDirectAudioMute(0, true);
-                videoPlayer.Play();
-            } 
-            else
-            {
-                Debug.LogWarning($"Video '{post.videoName}' not found in Resources");
-            }
-        } 
+            LoadVideo(post.videoName, videoPlayer);
+        }
         else
         {
-            //Debug.Log("Processing as image post");
             postImage.gameObject.SetActive(true);
             postVideo.gameObject.SetActive(false);
-            //postImage.sprite = post.image;
-
-            Sprite image = Resources.Load<Sprite>(post.imageName);
-            if (image != null)
-            {
-                postImage.sprite = image;
-            }
-            else
-            {
-                Debug.LogWarning($"Image '{post.imageName}' not found in Resources");
-            }
+            LoadImage(post.imageName, postImage);
         }
+    }
 
-        //newPost.transform.Find("LikeCount").GetComponent<TextMeshProUGUI>().text = post.likes.ToString();
+    private void LoadVideo(string videoName, VideoPlayer videoPlayer)
+    {
+        VideoClip video = Resources.Load<VideoClip>(videoName);
+        if (video != null)
+        {
+            videoPlayer.clip = video;
+            videoPlayer.SetDirectAudioMute(0, true);
+            videoPlayer.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"Video '{videoName}' not found in Resources");
+        }
+    }
 
+    private void LoadImage(string imageName, Image postImage)
+    {
+        Sprite image = Resources.Load<Sprite>(imageName);
+        if (image != null)
+        {
+            postImage.sprite = image;
+        }
+        else
+        {
+            Debug.LogWarning($"Image '{imageName}' not found in Resources");
+        }
+    }
+
+    private void SetLikeButtonActions(GameObject newPost, PostData post)
+    {
+        TextMeshProUGUI likeCountText = newPost.transform.Find("LikeCount").GetComponent<TextMeshProUGUI>();
         Button upvoteButton = newPost.transform.Find("UpVoteButton").GetComponent<Button>();
         Button downvoteButton = newPost.transform.Find("DownVoteButton").GetComponent<Button>();
 
@@ -212,9 +153,9 @@ public class FYPManager : MonoBehaviour
             {
                 if (hasDownVoted)
                 {
-                    currentLikes += 2; 
+                    currentLikes += 2;
                     hasDownVoted = false;
-                } 
+                }
                 else
                 {
                     currentLikes += 1;
@@ -233,62 +174,50 @@ public class FYPManager : MonoBehaviour
             {
                 if (hasUpVoted)
                 {
-                    currentLikes -= 2; 
+                    currentLikes -= 2;
                     hasUpVoted = false;
                 }
                 else
                 {
                     currentLikes = Mathf.Max(0, currentLikes - 1);
                 }
-                
+
                 hasDownVoted = true;
                 downvoteButton.interactable = false;
                 upvoteButton.interactable = true;
                 likeCountText.text = currentLikes.ToString();
             }
         });
+    }
 
+    private void SetReportButton(GameObject newPost, PostData post)
+    {
         Button postReportButton = newPost.transform.Find("ReportButton").GetComponent<Button>();
-        Transform reportPopUpTrans = newPost.transform.Find("ReportPopUp");
-        GameObject localReportPopUpPanel = reportPopUpTrans.gameObject;
-
         postReportButton.onClick.AddListener(() =>
         {
-            SetupReportPopup(localReportPopUpPanel, post.username, post.caption);
-        });
+            GameObject reportPostUI = Instantiate(reportPopUpPrefab, contentPanel.parent);
+            reportPostUI.transform.SetAsLastSibling();
 
+            Button confirmButton = reportPostUI.transform.Find("ConfirmButton").GetComponent<Button>();
+            Button cancelButton = reportPostUI.transform.Find("CancelButton").GetComponent<Button>();
+
+            confirmButton.onClick.AddListener(() =>
+            {
+                Debug.Log($"Post by {post.username} reported for reason: {GetSelectedReason(reportPostUI)}");
+                Destroy(reportPostUI);
+            });
+
+            cancelButton.onClick.AddListener(() =>
+            {
+                Destroy(reportPostUI);
+            });
+        });
+    }
+
+    private void SetUpCommentsSection(GameObject newPost, PostData post)
+    {
         Transform commentSection = newPost.transform.Find("CommentsSection/Viewport/Content");
         GameObject commentPrefab = Resources.Load<GameObject>("Prefabs/CommentsPanel");
-
-        /* foreach (string comment in post.comments)
-        {
-            Debug.Log($"Creating comment: {comment}"); // Debug message
-
-            GameObject commentText = new GameObject("Comment");
-            TextMeshProUGUI textComp = commentText.AddComponent<TextMeshProUGUI>();
-
-            textComp.text = comment;
-            textComp.fontSize = 30;
-            textComp.color = Color.white;
-            textComp.enableWordWrapping = true;
-
-            if (commentFont != null)
-            {
-                textComp.font = commentFont;
-            }
-            else
-            {
-                Debug.LogWarning("No font assigned! Using default TMP font.");
-            }
-
-            RectTransform rectTransform = commentText.GetComponent<RectTransform>();
-            rectTransform.SetParent(commentSection, false);
-
-            rectTransform.sizeDelta = new Vector2(845, rectTransform.sizeDelta.y); 
-            rectTransform.anchorMin = new Vector2(0, 1); 
-            rectTransform.anchorMax = new Vector2(0, 1);
-            rectTransform.pivot = new Vector2(0, 1);
-        }*/
 
         foreach (CommentData comment in post.comments)
         {
@@ -299,31 +228,43 @@ public class FYPManager : MonoBehaviour
             Button likeBtn = commentGO.transform.Find("SingleComment/LikeButton").GetComponent<Button>();
             Button dislikeBtn = commentGO.transform.Find("SingleComment/DislikeButton").GetComponent<Button>();
             Button reportBtn = commentGO.transform.Find("SingleComment/ReportButton").GetComponent<Button>();
-            /*Transform commentPopUpTrans = commentGO.transform.Find("SingleComment/ReportPopUp");
-            GameObject commentPopUp = commentPopUpTrans?.gameObject;*/
 
             commentUsernameText.text = comment.commentUser;
             commentText.text = comment.commentText;
 
             int localLikes = 0;
 
-            likeBtn.onClick.AddListener (() =>
+            likeBtn.onClick.AddListener(() =>
             {
                 localLikes++;
                 Debug.Log($"Comment liked by {comment.commentUser}. Total likes: {localLikes}");
-            }); 
-            
-            dislikeBtn.onClick.AddListener (() =>
+            });
+
+            dislikeBtn.onClick.AddListener(() =>
             {
                 localLikes = Mathf.Max(0, localLikes - 1);
                 Debug.Log($"Comment disliked by {comment.commentUser}. Total likes: {localLikes}");
-            }); 
-            
-            reportBtn.onClick.AddListener (() =>
+            });
+
+            reportBtn.onClick.AddListener(() =>
             {
-                Debug.Log($"Comment by {comment.commentUser} reported.");
-                //SetupReportPopup(commentPopUp, comment.commentUser, comment.commentText);
-            }); 
+                GameObject reportCommentUI = Instantiate(reportPopUpPrefab, contentPanel.parent);
+                reportCommentUI.transform.SetAsLastSibling();
+
+                Button confirmBtn = reportCommentUI.transform.Find("ConfirmButton").GetComponent<Button>();
+                Button cancelBtn = reportCommentUI.transform.Find("CancelButton").GetComponent<Button>();
+
+                confirmBtn.onClick.AddListener(() =>
+                {
+                    Debug.Log($"Comment by {comment.commentUser} reported for reason: {GetSelectedReason(reportCommentUI)}");
+                    Destroy(reportCommentUI);
+                });
+
+                cancelBtn.onClick.AddListener(() =>
+                {
+                    Destroy(reportCommentUI);
+                });
+            });
         }
 
         TMP_InputField commentInput = newPost.transform.Find("CommentInput").GetComponent<TMP_InputField>();
@@ -342,67 +283,74 @@ public class FYPManager : MonoBehaviour
                 };
 
                 post.comments.Add(newComment);
-
-                GameObject commentGO = Instantiate(commentPrefab, commentSection);
-
-                TextMeshProUGUI commentPlayerText = commentGO.transform.Find("SingleComment/CommentUser").GetComponent<TextMeshProUGUI>();
-                TextMeshProUGUI commentText = commentGO.transform.Find("SingleComment/CommentText").GetComponent<TextMeshProUGUI>();
-                Button likeBtn = commentGO.transform.Find("SingleComment/LikeButton").GetComponent<Button>();
-                Button dislikeBtn = commentGO.transform.Find("SingleComment/DislikeButton").GetComponent<Button>();
-                Button reportBtn = commentGO.transform.Find("SingleComment/ReportButton").GetComponent<Button>();
-                /*Transform commentPopUpTrans = commentGO.transform.Find("SingleComment/ReportPopUp");
-                GameObject commentPopUp = commentPopUpTrans?.gameObject;*/
-
-                commentPlayerText.text = newComment.commentUser;
-                commentText.text = newComment.commentText;
-
-                int localLikes = 0;
-
-                likeBtn.onClick.AddListener(() =>
-                {
-                    localLikes++;
-                    Debug.Log($"Comment liked by {newComment.commentUser}. Total likes: {localLikes}");
-                });
-
-                dislikeBtn.onClick.AddListener(() =>
-                {
-                    localLikes = Mathf.Max(0, localLikes - 1);
-                    Debug.Log($"Comment disliked by {newComment.commentUser}. Total likes: {localLikes}");
-                });
-
-                reportBtn.onClick.AddListener(() =>
-                {
-                    Debug.Log($"Comment by {newComment.commentUser} reported.");
-                    //SetupReportPopup(commentPopUp, newComment.commentUser, newComment.commentText);
-                });
-
+                CreateCommentUI(newPost, newComment);
                 commentInput.text = "";
             }
         });
     }
 
-    void SetupReportPopup(GameObject popup, string username, string text)
+    private void CreateCommentUI(GameObject postUI, CommentData comment)
     {
-        TMP_Dropdown reasonDropdown = popup.transform.Find("Reasons").GetComponent<TMP_Dropdown>();
-        Button confirmButton = popup.transform.Find("ConfirmButton").GetComponent<Button>();
-        Button cancelButton = popup.transform.Find("CancelButton").GetComponent<Button>();
+        Transform commentSection = postUI.transform.Find("CommentsSection/Viewport/Content");
+        GameObject commentPrefab = Resources.Load<GameObject>("Prefabs/CommentsPanel");
 
-        popup.SetActive(true);
+        GameObject commentGO = Instantiate(commentPrefab, commentSection);
 
-        confirmButton.onClick.RemoveAllListeners();
-        confirmButton.onClick.AddListener(() =>
+        TextMeshProUGUI commentUsernameText = commentGO.transform.Find("SingleComment/CommentUser").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI commentText = commentGO.transform.Find("SingleComment/CommentText").GetComponent<TextMeshProUGUI>();
+        Button likeBtn = commentGO.transform.Find("SingleComment/LikeButton").GetComponent<Button>();
+        Button dislikeBtn = commentGO.transform.Find("SingleComment/DislikeButton").GetComponent<Button>();
+        Button reportBtn = commentGO.transform.Find("SingleComment/ReportButton").GetComponent<Button>();
+
+        commentUsernameText.text = comment.commentUser;
+        commentText.text = comment.commentText;
+
+        int localLikes = 0;
+
+        likeBtn.onClick.AddListener(() =>
         {
-            string reason = reasonDropdown.options[reasonDropdown.value].text;
-            Debug.Log($"Reported by: {username}\nText: {text}\nReason: {reason}");
-            popup.SetActive(false);
+            localLikes++;
+            Debug.Log($"Comment liked by {comment.commentUser}. Total likes: {localLikes}");
         });
 
-        cancelButton.onClick.RemoveAllListeners();
-        cancelButton.onClick.AddListener(() =>
+        dislikeBtn.onClick.AddListener(() =>
         {
-            popup.SetActive(false);
+            localLikes = Mathf.Max(0, localLikes - 1);
+            Debug.Log($"Comment disliked by {comment.commentUser}. Total likes: {localLikes}");
+        });
+
+        reportBtn.onClick.AddListener(() =>
+        {
+            GameObject reportCommentUI = Instantiate(reportPopUpPrefab, contentPanel.parent);
+            reportCommentUI.transform.SetAsLastSibling();
+
+            Button confirmBtn = reportCommentUI.transform.Find("ConfirmButton").GetComponent<Button>();
+            Button cancelBtn = reportCommentUI.transform.Find("CancelButton").GetComponent<Button>();
+
+            confirmBtn.onClick.AddListener(() =>
+            {
+                Debug.Log($"Comment by {comment.commentUser} reported for reason: {GetSelectedReason(reportCommentUI)}");
+                Destroy(reportCommentUI);
+            });
+
+            cancelBtn.onClick.AddListener(() =>
+            {
+                Destroy(reportCommentUI);
+            });
         });
     }
 
-
+    private string GetSelectedReason(GameObject popup)
+    {
+        TMP_Dropdown reasonsDropdown = popup.transform.Find("Reasons").GetComponent<TMP_Dropdown>();
+        if (reasonsDropdown.options.Count > reasonsDropdown.value)
+        {
+            return reasonsDropdown.options[reasonsDropdown.value].text;
+        }
+        else
+        {
+            Debug.LogWarning("Invalid dropdown selection.");
+            return "Unspecified";
+        }
+    }
 }

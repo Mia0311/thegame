@@ -645,10 +645,7 @@ MonoBehaviour:
   postPrefab: {fileID: 7219958357837111735, guid: 9ebf432b49d52464fb4f669a484f66ad, type: 3}
   contentPanel: {fileID: 809584793}
   commentFont: {fileID: 11400000, guid: 4cc0427225a018c4087932c2ac942d8f, type: 2}
-  reportPopUpPanel: {fileID: 8961534906861888840, guid: 59fda1ea733230944994555ae46c664e, type: 3}
-  reasonDropdown: {fileID: 0}
-  confirmReportButton: {fileID: 0}
-  cancelReportButton: {fileID: 0}
+  reportPopUpPrefab: {fileID: 8961534906861888840, guid: 59fda1ea733230944994555ae46c664e, type: 3}
 --- !u!4 &1027960954
 Transform:
   m_ObjectHideFlags: 0
