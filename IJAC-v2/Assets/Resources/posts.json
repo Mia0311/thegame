@@ -1,0 +1,38 @@
+[
+  {
+    "username": "Alice",
+    "caption": "Perfect day for a photoshoot!",
+    "imageName": "Posts/image1",
+    "videoName": "",
+    "isVideo": false,
+    "likes": 42,
+    "comments": [
+      {
+        "commentUser": "Bob",
+        "commentText": "That smile is amazing!"
+      },
+      {
+        "commentUser": "Charlie",
+        "commentText": "Wish I was there!"
+      }
+    ]
+  },
+  {
+    "username": "David",
+    "caption": "My dog just learned a new trick!",
+    "imageName": "",
+    "videoName": "Posts/video1",
+    "isVideo": true,
+    "likes": 99,
+    "comments": [
+      {
+        "commentUser": "Eve",
+        "commentText": "Best anecdote ever!"
+      },
+      {
+        "commentUser": "Charlie",
+        "commentText": "How embarrasing it must have been. Glad I was not you."
+      }
+    ]
+  }
+]

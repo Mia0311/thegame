@@ -712,7 +712,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1912285499}
         m_TargetAssemblyTypeName: Script_IntroductionMenuController, Assembly-CSharp
-        m_MethodName: Setting
+        m_MethodName: LoadSettingMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1515,6 +1515,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f5184cf4e68f149843da67cdf09d84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settingsMenuPrefab: {fileID: 6435240299045287717, guid: 08e11e2204b41f84cbca2f9d1aad8656, type: 3}
+  canvas: {fileID: 1053632278}
 --- !u!1 &2017315440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1576,7 +1578,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -194205757766065663, guid: ac22f6812cff1a1439754dfbebed88f9, type: 3}
+  m_Sprite: {fileID: 1115316538398264999, guid: 0aa9440b13358ea40bce2b670783d5d4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
